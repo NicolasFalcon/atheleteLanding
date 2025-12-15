@@ -243,18 +243,87 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-zinc-200 py-8">
-        <div className="mx-auto max-w-4xl px-6 text-center text-xs text-zinc-500">
-          © {new Date().getFullYear()} Athelete. All rights reserved.
+      <footer className="border-t border-zinc-200 py-10">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          {/* Social icons */}
+          <div className="mb-6 flex items-center justify-center gap-3">
+            <SocialIcon
+              href="https://www.instagram.com/athelete_official/"
+              label="Instagram"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="currentColor"
+                >
+                  <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9A3.5 3.5 0 0 0 20 16.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm4.5 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm5-2.4a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" />
+                </svg>
+              }
+            />
+
+            <SocialIcon
+              href="https://x.com/"
+              label="X"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="currentColor"
+                >
+                  <path d="M18.9 2H22l-6.8 7.77L23 22h-6.8l-5.33-6.82L4.9 22H2l7.34-8.4L1 2h6.97l4.82 6.14L18.9 2Zm-1.2 18h1.72L7.25 3.88H5.41L17.7 20Z" />
+                </svg>
+              }
+            />
+
+            <SocialIcon
+              href="https://tiktok.com/"
+              label="TikTok"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="currentColor"
+                >
+                  <path d="M16 2c.3 2.6 1.86 4.35 4.5 4.5v3.02c-1.6.06-3-.46-4.5-1.4v6.64c0 4.03-3.1 7.24-7.2 7.24-3.97 0-7.3-3.1-7.3-7.24 0-4.02 3.2-7.24 7.3-7.24.5 0 1 .06 1.48.18v3.35a3.9 3.9 0 0 0-1.48-.3c-2.17 0-3.93 1.74-3.93 4.01 0 2.28 1.76 4.02 3.93 4.02 2.35 0 3.86-1.58 3.86-4.35V2H16Z" />
+                </svg>
+              }
+            />
+          </div>
+
+          <div className="text-xs text-zinc-500">
+            © {new Date().getFullYear()} Athelete. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
   );
 }
 
+function SocialIcon({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={label}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition hover:opacity-80"
+    >
+      {icon}
+    </a>
+  );
+}
+
 function Card({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="group rounded-3xl bg-white p-7 shadow-[0_10px_30px_rgba(0,0,0,0.16)]  transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.10)]">
+    <div className="group rounded-3xl bg-white p-7 shadow-[0_10px_30px_rgba(0,0,0,0.16)]  transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.10)] ">
       <p className="text-sm font-semibold tracking-tight text-zinc-900">
         {title}
       </p>
