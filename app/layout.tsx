@@ -10,7 +10,11 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "Athelete",
-  description: "Athelete landing",
+  description: "Athelete",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
