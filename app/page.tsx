@@ -1,10 +1,58 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import Image from "next/image";
 
 import BannerTop from "../app/assets/athlete-top.png";
 import BannerBottom from "../app/assets/banner-bottom.png";
 import Logo from "../app/assets/logo1.png";
+import { useState } from "react";
 
 export default function Home() {
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">(
+    "idle"
+  );
+  const [msg, setMsg] = useState<string>("");
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("loading");
+    setMsg("");
+
+    const form = new FormData(e.currentTarget);
+
+    const payload = {
+      name: String(form.get("name") || ""),
+      email: String(form.get("email") || ""),
+      instagram: String(form.get("instagram") || ""),
+      gender: String(form.get("gender") || ""),
+      interest_wear: Boolean(form.get("interest_wear")),
+      interest_app: Boolean(form.get("interest_app")),
+      interest_gym: Boolean(form.get("interest_gym")),
+      consent: Boolean(form.get("consent")),
+      source: "landing",
+    };
+
+    try {
+      const r = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await r.json();
+
+      if (!r.ok || data?.ok === false) throw new Error(data?.error || "Error");
+
+      setStatus("ok");
+      setMsg("Listo. Estás dentro. Te avisaremos primero.");
+    } catch (err: any) {
+      console.log("Error submitting lead:", err);
+      setStatus("error");
+      setMsg("Ups. No se pudo enviar. Intenta otra vez. ❌");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white text-black">
       {/* MINI HEADER (sticky) */}
@@ -188,57 +236,119 @@ export default function Home() {
             </p>
           </div>
 
-          <form className="mx-auto mt-10 max-w-2xl space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input label="Nombre" name="name" placeholder="Tu nombre" />
-              <Input
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="tu@email.com"
-              />
-            </div>
+          {status === "ok" ? (
+            <div className="mx-auto mt-10 max-w-2xl rounded-3xl bg-white p-10 text-center shadow-[0_18px_45px_rgba(0,0,0,0.40)]">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200">
+                {/* Check */}
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M20 6L9 17l-5-5"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
 
-            <Input
-              label="Instagram (opcional)"
-              name="instagram"
-              placeholder="@tuusuario"
-            />
+              <h4 className="mt-6 text-2xl font-semibold tracking-tight">
+                Gracias.
+              </h4>
+              <p className="mt-3 text-zinc-600">
+                Ya estás en la lista. Te avisaremos primero cuando Athelete esté
+                listo.
+              </p>
 
-            <div className="rounded-2xl border border-zinc-200 p-4 text-left">
-              <p className="text-sm font-medium">¿Qué te interesa más?</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                <Check label="Wear" name="interest_wear" />
-                <Check label="App" name="interest_app" />
-                <Check label="Gimnasio" name="interest_gym" />
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStatus("idle");
+                    setMsg("");
+                  }}
+                  className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition"
+                >
+                  Registrar otro
+                </button>
               </div>
             </div>
-
-            <div className="flex items-start gap-3">
-              <input
-                id="consent"
-                name="consent"
-                type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-zinc-300"
-                required
-              />
-              <label htmlFor="consent" className="text-sm text-zinc-600">
-                Acepto recibir novedades de Athelete (puedo salir cuando
-                quiera).
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded-full bg-black px-6 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition"
+          ) : (
+            <form
+              onSubmit={onSubmit}
+              className="mx-auto mt-10 max-w-2xl space-y-4"
             >
-              Unirme
-            </button>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="Nombre" name="name" placeholder="Tu nombre" />
+                <Input
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="tu@email.com"
+                />
+              </div>
 
-            <p className="pt-2 text-center text-xs text-zinc-500">
-              A T H E L E T E — diseñado con intención.
-            </p>
-          </form>
+              <Input
+                label="Instagram (opcional)"
+                name="instagram"
+                placeholder="@tuusuario"
+              />
+
+              {/* GÉNERO */}
+              <div className="rounded-2xl border border-zinc-200 p-4 text-left">
+                <p className="text-sm font-medium">Género</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <Radio label="Hombre" name="gender" value="Hombre" />
+                  <Radio label="Mujer" name="gender" value="Mujer" />
+                  <Radio label="Otro" name="gender" value="Otro" />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-200 p-4 text-left">
+                <p className="text-sm font-medium">¿Qué te interesa más?</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <Check label="Wear" name="interest_wear" />
+                  <Check label="App" name="interest_app" />
+                  <Check label="Gimnasio" name="interest_gym" />
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <input
+                  id="consent"
+                  name="consent"
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-zinc-300"
+                  required
+                />
+                <label htmlFor="consent" className="text-sm text-zinc-600">
+                  Acepto recibir novedades de Athelete (puedo salir cuando
+                  quiera).
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="w-full rounded-full bg-black px-6 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition disabled:opacity-60"
+              >
+                {status === "loading" ? "Enviando..." : "Unirme"}
+              </button>
+
+              {status === "error" && (
+                <p className="pt-2 text-center text-sm text-red-600">{msg}</p>
+              )}
+
+              <p className="pt-2 text-center text-xs text-zinc-500">
+                A T H E L E T E — diseñado con intención.
+              </p>
+            </form>
+          )}
         </div>
       </section>
 
@@ -299,39 +409,6 @@ export default function Home() {
   );
 }
 
-function SocialIcon({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={label}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition hover:opacity-80"
-    >
-      {icon}
-    </a>
-  );
-}
-
-function Card({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="group rounded-3xl bg-white p-7 shadow-[0_10px_30px_rgba(0,0,0,0.16)]  transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.10)] ">
-      <p className="text-sm font-semibold tracking-tight text-zinc-900">
-        {title}
-      </p>
-      <p className="mt-2 text-sm leading-6 text-zinc-600">{desc}</p>
-    </div>
-  );
-}
-
 function Input({
   label,
   name,
@@ -369,5 +446,60 @@ function Check({ label, name }: { label: string; name: string }) {
       />
       {label}
     </label>
+  );
+}
+
+function Radio({
+  label,
+  name,
+  value,
+}: {
+  label: string;
+  name: string;
+  value: string;
+}) {
+  return (
+    <label className="flex items-center gap-2 text-sm text-zinc-700">
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        className="h-4 w-4 border-zinc-300"
+      />
+      {label}
+    </label>
+  );
+}
+
+function Card({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div className="group rounded-3xl bg-white p-7 shadow-[0_10px_30px_rgba(0,0,0,0.16)]  transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.10)] ">
+      <p className="text-sm font-semibold tracking-tight text-zinc-900">
+        {title}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-zinc-600">{desc}</p>
+    </div>
+  );
+}
+
+function SocialIcon({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={label}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition hover:opacity-80"
+    >
+      {icon}
+    </a>
   );
 }
